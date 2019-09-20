@@ -1,22 +1,13 @@
-import io.restassured.response.Response;
 import org.testng.annotations.Test;
-import java.net.HttpURLConnection;
-
 import static io.restassured.RestAssured.given;
-import io.restassured.specification.RequestSpecification;
-
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.*;
-import io.restassured.matcher.RestAssuredMatchers;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 
-public class ApiTest {
-    //тест, проверяющий доступность метода GET hotels/api/suggestRequest и наличие в теле ответа на запрос важных параметров
+public class ApiTests {
+    
+    //Тест, проверяющий доступность метода GET hotels/api/suggestRequest и наличие в теле ответа на запрос важных параметров
+    
     @Test()
     public void testGet() {
         //выносим в локальные переменные в начало метода. Локальными переменными будем делать параметры запроса GET, с которым будем работать.
@@ -41,9 +32,9 @@ public class ApiTest {
                         //проверяем, что массив в result не пустой
                         .body("result", not(emptyArray()))
                         //проверяем, что размер массива = 3, т.е. что в нем приходит три структуры - города, аэропорты, отели
-                     //   .body("result",hasSize(3))
+                        .body("result",hasSize(3))
                         //проверяем, что в массиме result есть город с id Москвы, чтобы убедиться, что поисковый запрос пользвоателя был принят и обработан :)
-                     //   .body("result.city_id", hasItem("524901"));
+                        .body("result.city_id", hasItem("524901"));
 
                 // эти проверки считаем достаточными. Структуры со списком городов, аэропортов и отелей наверняка используются и в других методах
                 // поэтмоу их проверку лучше вынести в отдельные методы, которые будут вызываться при необходимости.
@@ -53,8 +44,10 @@ public class ApiTest {
     @Test()
     public void testRedirect() {
 
+        //Тест на проверку редиректа с onetwotrip.com происходит редирект на www.onetwotrip.com
+        
         given()
-                //в хедеры GET запроса передаем url youdo.ru и предпочтительную локаль английску
+                //в хедеры GET запроса передаем url youdo.ru и предпочтительную локаль - английску
                 .param("url", "wotrip.com")
                 .param("Accept-Language","en")
                 .expect()
