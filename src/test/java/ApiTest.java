@@ -4,53 +4,71 @@ import java.net.HttpURLConnection;
 
 import static io.restassured.RestAssured.given;
 import io.restassured.specification.RequestSpecification;
+
+import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.*;
 import io.restassured.matcher.RestAssuredMatchers;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-//import java.net.URL;
+import java.net.URL;
 
 
 public class ApiTest {
+    //тест, проверяющий доступность метода GET hotels/api/suggestRequest и наличие в теле ответа на запрос важных параметров
     @Test()
     public void testGet() {
-        String url = "https://youdo.com/api/tasks/suggest/";
+        //выносим в локальные переменные в начало метода. Локальными переменными будем делать параметры запроса GET, с которым будем работать.
+        //в данном кейсе это url и query, но в дальшейм можно будет добавлять и дургие - limit, lang, locale... в зависимости от того, какие проверки будем добавлять в тест :)
+        String url = "https://www.onetwotrip.com/_hotels/api/suggestRequest";
+        String query = "Мос";
 
-
-    //    Response getSuggests =
                 given()
-                        .param("query", "поч")
+                        //передаем параметры запроса
+                        .param("query", query)
                         .when()
+                        //отправляем GET-запрос с заданными параметрами
                         .get(url)
                         .then()
+                        //проверяем, что сервер возвращает нам на запрос код ответа 200
                         .statusCode(200)
+                        //проверяем, что ответ сервера приходит в формате JSON
                         .contentType("application/json")
                         .assertThat()
-                        //  .body("error", equalTo(null))
-                        .body("ResultObject", not(emptyArray()))
-                        .body("ResultObject.Text", hasItem("починить стиральную машину"));
-     //                   .extract()
-       //                 .response();
+                        //проверяем, что в полученном JSON в параметре error приходит null (чтобы этот параметр ни значил, раз он про ошибки - стоит проверить :) )
+                        .body("error", equalTo(null))
+                        //проверяем, что массив в result не пустой
+                        .body("result", not(emptyArray()))
+                        //проверяем, что размер массива = 3, т.е. что в нем приходит три структуры - города, аэропорты, отели
+                     //   .body("result",hasSize(3))
+                        //проверяем, что в массиме result есть город с id Москвы, чтобы убедиться, что поисковый запрос пользвоателя был принят и обработан :)
+                     //   .body("result.city_id", hasItem("524901"));
+
+                // эти проверки считаем достаточными. Структуры со списком городов, аэропортов и отелей наверняка используются и в других методах
+                // поэтмоу их проверку лучше вынести в отдельные методы, которые будут вызываться при необходимости.
+
     }
 
     @Test()
     public void testRedirect() {
 
-        String url="http://youdo.ru";
-
-        Response isRedirect =
-                given()
-                        .when()
-                        .get(url)
-                        .then()
-                        .statusCode(301)
-                        .header("location","https://www.youdo.com/")
-                        //.get("https://www.youdo.com/")
-                        .extract()
-                        .response();
+        given()
+                //в хедеры GET запроса передаем url youdo.ru и предпочтительную локаль английску
+                .param("url", "wotrip.com")
+                .param("Accept-Language","en")
+                .expect()
+                //ожидаем получить в ответ на GET запрос код ошибки 301
+                .statusCode(301)
+                //а еще ожидаем получить в ответе от сервера url для редиректа в respons header, в параметре location
+                .header("Location", is("www.onetwotrip.com"))
+                .when()
+                //отправляем GET запрос, если все ок, все ожидания оправдались (получили 301 и верный url в location), код будет исполняться дальше :)
+                .get();
+                //выполняем переход на url, полученный в location, ожидаем получить при переходе по нему 200
+                when().get("www.onetwotrip.com").statusCode(200);
     }
+
 }
 
 
